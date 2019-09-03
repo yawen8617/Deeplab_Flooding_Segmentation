@@ -36,12 +36,13 @@
 set -e
 
 CURRENT_DIR=$(pwd)
-WORK_DIR="./mvd_simplified"
+WORK_DIR="./mvd_water"
 
 cd "${CURRENT_DIR}"
 
 # Root path for MV dataset.
-MVD_SIMP_ROOT="${WORK_DIR}"
+MVD_WATER_ROOT="${WORK_DIR}"
+MVD_SIMP_ROOT="./mvd_simplified"
 MVD_ROOT="./mvd"
 
 # Remove the colormap in the ground truth annotations.
@@ -59,11 +60,11 @@ OUTPUT_DIR="${WORK_DIR}/tfrecord"
 mkdir -p "${OUTPUT_DIR}"
 
 IMAGE_FOLDER="${MVD_ROOT}/images"
-LIST_FOLDER="${MVD_SIMP_ROOT}/index"
+LIST_FOLDER="${MVD_WATER_ROOT}/index"
 
 # Resize images for evaluation 
-RESIZE_IMG_Folder="${MVD_SIMP_ROOT}/ResizedImages/images"
-RESIZE_LABEL_Folder="${MVD_SIMP_ROOT}/ResizedImages/SegmentationClassRaw"
+RESIZE_IMG_Folder="${MVD_WATER_ROOT}/ResizedImages/images"
+RESIZE_LABEL_Folder="${MVD_WATER_ROOT}/ResizedImages/SegmentationClassRaw"
 mkdir -p "${RESIZE_IMG_Folder}"
 mkdir -p "${RESIZE_LABEL_Folder}"
 

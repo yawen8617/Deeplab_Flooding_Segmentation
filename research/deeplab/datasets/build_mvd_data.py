@@ -164,12 +164,20 @@ def _convert_dataset(dataset_split):
 
 def main(unused_argv):
   dataset_splits = tf.gfile.Glob(os.path.join(FLAGS.list_folder, '*.txt'))
-  for dataset_split in dataset_splits:
-    _convert_dataset(dataset_split)
+#  for dataset_split in dataset_splits:
+#    dataset = os.path.basename(dataset_split)[:-4]
+#    if dataset in ['train', 'trainval', 'val']:
+#        _convert_dataset(dataset_split)
+#    else:
+#        continue
 #  for dataset_split in dataset_splits:
 #    dataset = os.path.basename(dataset_split)[:-4]
 #    if dataset == "val":
 #        _convert_dataset(dataset_split)
+  for dataset_split in dataset_splits:
+    dataset = os.path.basename(dataset_split)[:-4]
+    if dataset == "eval_in_train":
+        _convert_dataset(dataset_split)
 
 if __name__ == '__main__':
   tf.app.run()

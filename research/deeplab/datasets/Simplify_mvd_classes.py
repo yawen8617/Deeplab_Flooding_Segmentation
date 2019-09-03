@@ -26,6 +26,7 @@ class class_simplifyer(object):
         for image in labels_im:
             n += 1
             print("Image: " + str(n))
+            
             im = Image.open(os.path.join(self.label_folder, image))
             pixels = np.asarray(im)
             
@@ -38,6 +39,6 @@ class class_simplifyer(object):
             new_im.save(os.path.join(self.label_out_folder, image))
 
 path = 'C:/models-master/research/deeplab/datasets/'
-img_simp = class_simplifyer(path + 'mvd_simplified/old_class_to_new_class_id.csv',
-                            path + 'mvd/SegmentationClassRaw', path + 'mvd_simplified/SegmentationClassRaw')
+img_simp = class_simplifyer(path + 'mvd_simplified/Final_old_class_to_new_class_id.csv',
+                            path + 'mvd_simplified/SegmentationClassRaw_old', path + 'mvd_simplified/SegmentationClassRaw')
 img_simp.simplify_img()

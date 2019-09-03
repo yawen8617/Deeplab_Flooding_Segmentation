@@ -119,8 +119,22 @@ _MVD_SIMPLIFIED_INFORMATION = DatasetDescriptor(
         'val': 2000,
     },
     num_classes=16,
-    ignore_label=65,
-) # ignoring unlabeled layer 65
+    ignore_label=15,
+) # ignoring unlabeled layer 15
+#####################################################################
+#####################################################################
+
+#####################################################################
+# MVD_WATER, with same classes   ####################################
+#####################################################################
+_MVD_WATER_INFORMATION = DatasetDescriptor(
+    splits_to_sizes={
+        'train': 458,
+        'val': 42,
+    },
+    num_classes=16,
+    ignore_label=15,
+) # ignoring unlabeled layer 15
 #####################################################################
 #####################################################################
 
@@ -130,7 +144,8 @@ _DATASETS_INFORMATION = {
     'pascal_voc_seg': _PASCAL_VOC_SEG_INFORMATION,
     'ade20k': _ADE20K_INFORMATION,
     'mvd': _MVD_INFORMATION,
-	'mvd_simplified': _MVD_SIMPLIFIED_INFORMATION
+	'mvd_simplified': _MVD_SIMPLIFIED_INFORMATION,
+	'mvd_water': _MVD_WATER_INFORMATION
 }
 
 # Default file pattern of TFRecord of TensorFlow Example.

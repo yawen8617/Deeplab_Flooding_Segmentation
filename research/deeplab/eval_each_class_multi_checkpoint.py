@@ -24,7 +24,8 @@ from deeplab import common
 from deeplab import model
 from deeplab.datasets import data_generator
 from deeplab.utils import iou_each_class
-import csv
+from deeplab.utils import evaluation
+from deeplab.utils import iou_from_Tensorboard
 import os
 
 slim = tf.contrib.slim
@@ -162,33 +163,14 @@ def main(unused_argv):
         predictions, labels, dataset.num_of_classes, weights=weights)
     for index in range(0,dataset.num_of_classes):
         metric_map['class_'+str(index)+'_iou'] = (iou_v[index], update_op[index])
-#    for index in range(0,dataset.num_of_classes):
-#        tf.logging.info('class_'+str(index)+'_iou: ', iou_v[index])
-#        # metric_map['class_'+str(index)+'_iou'] = iou_v[index]
-#        metric_map['class_'+str(index)+'_iou'] = (iou_v[index], update_op[index])
-#    with open(os.path.join(FLAGS.eval_logdir, 'IOU_per_Class.csv'), 'w') as f:
-#        for key in metric_map.keys():
-#            f.write("%s,%s\n"%(key, metric_map[key]))
-
-    # metric_map[predictions_tag] = tf.metrics.mean_iou(
-        # predictions, labels, dataset.num_of_classes, weights=weights)
 
     metrics_to_values, metrics_to_updates = (
         tf.contrib.metrics.aggregate_metric_map(metric_map))
-    # miou, update_op = tf.metrics.mean_iou(
-        # predictions, labels, dataset.num_of_classes, weights=weights)
-    # tf.summary.scalar(predictions_tag, miou)
 
     for metric_name, metric_value in six.iteritems(metrics_to_values):
       slim.summaries.add_scalar_summary(
           metric_value, metric_name, print_summary=True)
 
-    # num_batches = int(
-        # math.ceil(dataset.num_samples / float(FLAGS.eval_batch_size)))
-
-    # tf.logging.info('Eval num images %d', dataset.num_samples)
-    # tf.logging.info('Eval batch size %d and num batch %d',
-                    # FLAGS.eval_batch_size, num_batches)
     summary_op = tf.summary.merge_all()
     summary_hook = tf.contrib.training.SummaryAtEndHook(
         log_dir=FLAGS.eval_logdir, summary_op=summary_op)
@@ -208,15 +190,24 @@ def main(unused_argv):
     tf.contrib.tfprof.model_analyzer.print_model_analysis(
         tf.get_default_graph(),
         tfprof_options=tf.contrib.tfprof.model_analyzer.FLOAT_OPS_OPTIONS)
-    tf.contrib.training.evaluate_repeatedly(
+    
+    ######################################################################
+    ############### Modified to evaluate all chekpoints in a folder ######
+    evaluation.evaluate_repeatedly(
         master=FLAGS.master,
         checkpoint_dir=FLAGS.checkpoint_dir,
         eval_ops=[update_op],
         max_number_of_evaluations=num_eval_iters,
         hooks=hooks,
         eval_interval_secs=FLAGS.eval_interval_secs)
-
-
+    
+    #####################################################################
+    ###### read iou from tensorboard to csv file ########################
+    checkpoint_path_list = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir).all_model_checkpoint_paths
+    iterations = [os.path.basename(a).split('-')[1] for a in checkpoint_path_list]
+    iou_from_Tensorboard.to_csv(FLAGS.eval_logdir, dataset.num_of_classes, iterations)
+    
+    
 if __name__ == '__main__':
   flags.mark_flag_as_required('checkpoint_dir')
   flags.mark_flag_as_required('eval_logdir')

@@ -42,14 +42,17 @@ cd "${CURRENT_DIR}"
 
 # Set up the working directories.
 MVD_FOLDER="mvd"
+MVD_SIMPLIFIED_FOLDER="mvd_simplified"
+MVD_WATER_FOLDER="mvd_water"
 ##############################################################################################
-EXP_FOLDER="exp/train_set_MVD_init_model_cityscapes_10000ites_batch6"
+EXP_FOLDER="exp/train_set_MVD_WATER_batch8_iter20k_init_Cityscapes_WW4"
 ##############################################################################################
 INIT_FOLDER="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/init_models"
-TRAIN_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/${EXP_FOLDER}/train"
-EVAL_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/${EXP_FOLDER}/eval"
-VIS_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/${EXP_FOLDER}/vis"
-EXPORT_DIR="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/${EXP_FOLDER}/export"
+# PRETRAIN_FOLDER="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/exp/train_set_MVD_batch6_iter20000"
+TRAIN_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/${EXP_FOLDER}/train"
+EVAL_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/${EXP_FOLDER}/eval"
+VIS_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/${EXP_FOLDER}/vis"
+EXPORT_DIR="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/${EXP_FOLDER}/export"
 mkdir -p "${INIT_FOLDER}"
 mkdir -p "${TRAIN_LOGDIR}"
 mkdir -p "${EVAL_LOGDIR}"
@@ -58,23 +61,23 @@ mkdir -p "${EXPORT_DIR}"
 
 cd "${CURRENT_DIR}"
 
-MVD_DATASET="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/tfrecord"
+MVD_WATER_DATASET="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/tfrecord"
   
-  ### Train 10000 iterations.
-python deeplab/train.py \
-    --logtostderr \
-    --training_number_of_steps=300 \
-    --train_split="train" \
-    --model_variant="xception_65" \
-    --atrous_rates=6 \
-    --atrous_rates=12 \
-    --atrous_rates=18 \
-    --output_stride=16 \
-    --decoder_output_stride=4 \
-    --train_crop_size=513 \
-    --train_crop_size=513 \
-    --train_batch_size=2 \
-    --dataset="mvd" \
-    --tf_initial_checkpoint='C:/Users/YawenShen/Desktop/models-master/models-master/research/deeplab/datasets/mvd/init_models/deeplabv3_cityscapes_train/model.ckpt' \
-    --train_logdir='C:/Users/YawenShen/Desktop/models-master/models-master/research/deeplab/datasets/mvd/exp/train_set_MVD_init_model_cityscapes_10000ites_batch6/train' \
-    --dataset_dir='C:/Users/YawenShen/Desktop/models-master/models-master/research/deeplab/datasets/mvd/tfrecord'
+
+# Visualize the results.
+python "${WORK_DIR}"/vis.py \
+  --logtostderr \
+  --vis_split="train" \
+  --model_variant="xception_65" \
+  --atrous_rates=6 \
+  --atrous_rates=12 \
+  --atrous_rates=18 \
+  --output_stride=16 \
+  --decoder_output_stride=4 \
+  --vis_crop_size='3025,4033' \
+  --dataset='mvd_water' \
+  --colormap_type='mapillary_vistas_simplified' \
+  --checkpoint_dir="${TRAIN_LOGDIR}" \
+  --vis_logdir="${VIS_LOGDIR}" \
+  --dataset_dir="${MVD_WATER_DATASET}" \
+  --max_number_of_iterations=1

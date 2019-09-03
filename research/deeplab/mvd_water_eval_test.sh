@@ -43,15 +43,16 @@ cd "${CURRENT_DIR}"
 # Set up the working directories.
 MVD_FOLDER="mvd"
 MVD_SIMPLIFIED_FOLDER="mvd_simplified"
+MVD_WATER_FOLDER="mvd_water"
 ##############################################################################################
-EXP_FOLDER="exp/train_set_MVD_batch8_iter10k"
+EXP_FOLDER="exp/train_set_MVD_WATER_batch8_iter10k_init_Cityscapes_WW1.0"
 ##############################################################################################
 INIT_FOLDER="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/init_models"
 # PRETRAIN_FOLDER="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/exp/train_set_MVD_batch6_iter20000"
-TRAIN_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_SIMPLIFIED_FOLDER}/${EXP_FOLDER}/train"
-EVAL_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_SIMPLIFIED_FOLDER}/${EXP_FOLDER}/eval"
-VIS_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_SIMPLIFIED_FOLDER}/${EXP_FOLDER}/vis"
-EXPORT_DIR="${WORK_DIR}/${DATASET_DIR}/${MVD_SIMPLIFIED_FOLDER}/${EXP_FOLDER}/export"
+TRAIN_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/${EXP_FOLDER}/train"
+EVAL_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/${EXP_FOLDER}/eval"
+VIS_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/${EXP_FOLDER}/vis"
+EXPORT_DIR="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/${EXP_FOLDER}/export"
 mkdir -p "${INIT_FOLDER}"
 mkdir -p "${TRAIN_LOGDIR}"
 mkdir -p "${EVAL_LOGDIR}"
@@ -60,58 +61,41 @@ mkdir -p "${EXPORT_DIR}"
 
 cd "${CURRENT_DIR}"
 
-MVD_DATASET="${WORK_DIR}/${DATASET_DIR}/${MVD_FOLDER}/tfrecord"
+MVD_WATER_DATASET="${WORK_DIR}/${DATASET_DIR}/${MVD_WATER_FOLDER}/tfrecord"
   
-  ### Train 10000 iterations.
-NUM_ITERATIONS=10000
-python "${WORK_DIR}"/train.py \
-  --logtostderr \
-  --num_clones=2 \
-  --train_split="train" \
-  --model_variant="xception_65" \
-  --atrous_rates=6 \
-  --atrous_rates=12 \
-  --atrous_rates=18 \
-  --output_stride=16 \
-  --decoder_output_stride=4 \
-  --train_crop_size="513,513" \
-  --train_batch_size=8 \
-  --base_learning_rate=0.00001 \
-  --learning_rate_decay_step=2000 \
-  --weight_decay=0.0000005 \
-  --training_number_of_steps="${NUM_ITERATIONS}" \
-  --log_steps=1 \
-  --save_summaries_secs=60 \
-  --dataset='mvd_simplified' \
-  --tf_initial_checkpoint="${INIT_FOLDER}/deeplabv3_cityscapes_train/model.ckpt" \
-  --initialize_last_layer=true \
-  --train_logdir="${TRAIN_LOGDIR}" \
-  --dataset_dir="${MVD_DATASET}"
-  
-# # Train from pretrained model, reuse all trained-weights
-# NUM_ITERATIONS=20000
-# python "${WORK_DIR}"/train.py \
+
+#### Run evaluation. This performs eval over the full val split (33 images) and
+#### will take a while.
+#### Using the provided checkpoint, one should expect mIOU=82.20%.
+# python "${WORK_DIR}"/eval.py \
   # --logtostderr \
-  # --num_clones=2 \
-  # --train_split="train" \
+  # --eval_split="val" \
   # --model_variant="xception_65" \
   # --atrous_rates=6 \
   # --atrous_rates=12 \
   # --atrous_rates=18 \
   # --output_stride=16 \
   # --decoder_output_stride=4 \
-  # --train_crop_size="513,513" \
-  # --train_batch_size=6 \
-  # --base_learning_rate=0.004 \
-  # --learning_rate_decay_step=200 \
-  # --weight_decay=0.00001 \
-  # --training_number_of_steps="${NUM_ITERATIONS}" \
-  # --log_steps=1 \
-  # --save_summaries_secs=60 \
-  # --tf_initial_checkpoint="${PRETRAIN_FOLDER}/train/model.ckpt-20000" \
-  # --initialize_last_layer=true \
-  # --last_layers_contain_logits_only=false \
-  # --train_logdir="${TRAIN_LOGDIR}" \
-  # --dataset_dir="${MVD_DATASET}"
+  # --eval_crop_size='3025,4033' \
+  # --dataset="mvd" \
+  # --checkpoint_dir="${TRAIN_LOGDIR}" \
+  # --eval_logdir="${EVAL_LOGDIR}" \
+  # --dataset_dir="${MVD_DATASET}" \
+  # --max_number_of_evaluations=1
   
-  
+python "${WORK_DIR}"/eval_each_class_mult_checkpoint.py \
+  --logtostderr \
+  --eval_split="val" \
+  --model_variant="xception_65" \
+  --atrous_rates=6 \
+  --atrous_rates=12 \
+  --atrous_rates=18 \
+  --output_stride=16 \
+  --decoder_output_stride=4 \
+  --eval_crop_size='3025,4033' \
+  --dataset="mvd_water" \
+  --checkpoint_dir="${TRAIN_LOGDIR}" \
+  --eval_logdir="${EVAL_LOGDIR}" \
+  --dataset_dir="${MVD_WATER_DATASET}" \
+  --max_number_of_evaluations=1
+

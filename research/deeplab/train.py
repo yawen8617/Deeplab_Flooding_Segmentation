@@ -59,6 +59,9 @@ flags.DEFINE_integer('log_steps', 10,
 flags.DEFINE_integer('save_interval_secs', 1200,
                      'How often, in seconds, we save the model to disk.')
 
+flags.DEFINE_integer('save_checkpoint_steps', 5000,
+                     'How often, in steps, we save the model to disk.')
+
 flags.DEFINE_integer('save_summaries_secs', 600,
                      'How often, in seconds, we compute the summaries.')
 
@@ -501,7 +504,8 @@ def main(unused_argv):
             summary_dir=FLAGS.train_logdir,
             log_step_count_steps=FLAGS.log_steps,
             save_summaries_steps=FLAGS.save_summaries_secs,
-            save_checkpoint_secs=FLAGS.save_interval_secs,
+            # save_checkpoint_secs=FLAGS.save_interval_secs,
+            save_checkpoint_steps=FLAGS.save_checkpoint_steps,
             hooks=[stop_hook]) as sess:
           while not sess.should_stop():
             sess.run([train_tensor])
